@@ -113,9 +113,9 @@ const DATA={
 };
 let currentRole='';let currentMenu='';
 const $=id=>document.getElementById(id);
-function login(role){currentRole=role;$('home').classList.add('hidden');$('app').classList.remove('hidden');render(role,'Overview')}
+function login(role,authenticated=false){currentRole=role;$('home').classList.add('hidden');$('app').classList.remove('hidden');render(role,'Overview');if(authenticated)syncBackend(role)}
 function logout(){$('app').classList.add('hidden');$('home').classList.remove('hidden');currentRole='';currentMenu=''}
-function render(role,menu){currentRole=role;currentMenu=menu;const d=DATA[role];$('userBox').innerHTML='<b>'+d.icon+' '+d.name+'</b><br><span style="color:#9fb0cc">'+d.role+'</span>';$('roleBadge').innerHTML='<div class="v6Tools"><span>'+d.role+'</span><button class="themeBtn" id="themeBtn" title="Toggle theme">☾</button></div>';$('title').textContent=menu;$('subtitle').textContent='Manage your '+menu.toLowerCase()+' from CAMPUSLINK';const demoBar=$('overviewDemoBar');if(demoBar)demoBar.style.display=menu==='Overview'?'flex':'none';$('menu').innerHTML=d.menus.map((m,i)=>'<button class="'+(m===menu?'active':'')+'" data-menu="'+m.replace(/&/g,'&amp;')+'">'+['▦','👤','🎯','💼','📅','📄','🏆'][i]+' '+m+'</button>').join('');$('content').innerHTML=page(role,menu)}
+function render(role,menu){currentRole=role;currentMenu=menu;const d=DATA[role];$('userBox').innerHTML='<b>'+d.icon+' '+d.name+'</b><br><span style="color:#9fb0cc">'+d.role+'</span>';$('roleBadge').innerHTML='<div class="v6Tools"><span>'+d.role+'</span><button class="themeBtn" id="themeBtn" title="Toggle theme">☾</button></div>';$('title').textContent=menu;$('subtitle').innerHTML='Manage your '+menu.toLowerCase()+' from CAMPUSLINK <span id="backendStatus" style="margin-left:10px;color:#55d69b;font-size:11px">● Full-stack mode</span>';const demoBar=$('overviewDemoBar');if(demoBar)demoBar.style.display=menu==='Overview'?'flex':'none';$('menu').innerHTML=d.menus.map((m,i)=>'<button class="'+(m===menu?'active':'')+'" data-menu="'+m.replace(/&/g,'&amp;')+'">'+['▦','👤','🎯','💼','📅','📄','🏆'][i]+' '+m+'</button>').join('');$('content').innerHTML=page(role,menu)}
 function statCards(stats){return '<div class="cards">'+stats.map(s=>'<div class="card"><small>'+s[0]+'</small><div class="value '+s[2]+'">'+s[1]+'</div><small>Updated today</small></div>').join('')+'</div>'}
 function chart(labels,values){let items=labels.map((x,i)=>'<div class="vrow"><b>'+x+'</b><div class="vtrack"><div class="vfill '+(i%3===1?'alt':i%3===2?'purple':'')+'" style="width:'+values[i]+'%"></div></div><span class="vnum">'+values[i]+'%</span></div>').join('');return '<div class="viz"><div class="ring"><div class="ringInner"><strong>72%</strong><span>Overall Health</span></div></div><div class="vlist">'+items+'</div></div>'}
 function moduleHero(title,text){return '<div class="module-hero"><h2>'+title+'</h2><p>'+text+'</p></div>'}
@@ -155,7 +155,7 @@ function showMatch(name,score){document.body.insertAdjacentHTML('beforeend','<di
 function roadmap(){document.body.insertAdjacentHTML('beforeend','<div class="ai-modal" id="roadmap"><div class="ai-box"><h2>🧭 Personalized 14-Day Roadmap</h2><p class="mini">Generated from your current readiness and detected skill gaps.</p><div class="ai-list"><div class="ai-item"><b>Days 1–4</b><span>Cloud fundamentals</span></div><div class="ai-item"><b>Days 5–8</b><span>SQL projects and practice</span></div><div class="ai-item"><b>Days 9–11</b><span>Mock technical interviews</span></div><div class="ai-item"><b>Days 12–14</b><span>Resume and applications</span></div></div><div class="notice success">Projected readiness: 82% → 91%</div><button class="ai-close" id="closeRoadmap">Close</button></div></div>')}
 function openDemo(){document.body.insertAdjacentHTML('beforeend','<div class="demoOverlay" id="demoOverlay"><div class="demoBox v6demo"><button class="demoClose" id="closeDemo">Close</button><h2>🚀 CAMPUSLINK Hackathon Demo</h2><p class="mini">One connected story from student readiness to final placement.</p><div class="demoTimeline"><div class="demoNode done"><span>✓</span><small>Student</small></div><div class="demoNode done"><span>✓</span><small>AI Match</small></div><div class="demoNode done"><span>✓</span><small>Apply</small></div><div class="demoNode current"><span>4</span><small>Interview</small></div><div class="demoNode"><span>5</span><small>Offer</small></div><div class="demoNode"><span>6</span><small>Placed</small></div></div><div class="demoSteps"><div class="demoStep active">🎓<b>Student</b><small>Profile + skill analysis</small></div><div class="demoStep">🎯<b>AI Match</b><small>92% best-fit role</small></div><div class="demoStep">🏢<b>Recruiter</b><small>AI shortlist</small></div><div class="demoStep">🏆<b>Offer</b><small>Admin analytics</small></div></div><div class="notice success"><b>Judge story:</b> CAMPUSLINK connects readiness, intelligent matching, recruiter decisions and placement outcomes in one workflow.</div><div class="quick" style="margin-top:16px"><button data-quick="Job Matching">1. Show AI Match</button><button data-quick="Applications">2. Track Application</button><button data-quick="Offers">3. Show Offer</button></div></div></div>')}
 function openCopilot(){document.body.insertAdjacentHTML('beforeend','<div class="ai-modal" id="copilot"><div class="ai-box"><h2>✨ AI Placement Copilot</h2><p class="mini">What would you like to improve today?</p><div class="ai-list"><div class="ai-item"><b>🎯 Best job for me</b><span>Find opportunities with the highest match score</span></div><div class="ai-item"><b>🧠 Skill improvement</b><span>Generate a personalized learning roadmap</span></div><div class="ai-item"><b>🎤 Interview preparation</b><span>Start a technical mock interview</span></div><div class="ai-item"><b>📄 Resume review</b><span>Identify missing impact and skills</span></div></div><button class="ai-close" id="closeCopilot">Close</button></div></div>')}
-document.addEventListener('click',e=>{const loginBtn=e.target.closest('[data-login]');if(loginBtn)return login(loginBtn.dataset.login);if(e.target.id==='logoutBtn')return logout();const menuBtn=e.target.closest('[data-menu]');if(menuBtn)return render(currentRole,menuBtn.dataset.menu);const quick=e.target.closest('[data-quick]');if(quick)return render(currentRole,quick.dataset.quick);const match=e.target.closest('[data-match]');if(match){const [n,s]=match.dataset.match.split('|');return showMatch(n,s)}if(e.target.id==='roadmapBtn')return roadmap();if(e.target.id==='closeAi')return $('aiModal')?.remove();if(e.target.id==='closeRoadmap')return $('roadmap')?.remove();if(e.target.id==='demoBtn')return openDemo();if(e.target.id==='closeDemo')return $('demoOverlay')?.remove();if(e.target.id==='copilotBtn'||e.target.id==='copilotBtn2')return openCopilot();if(e.target.id==='themeBtn'){document.getElementById('app').classList.toggle('darkMode');e.target.textContent=document.getElementById('app').classList.contains('darkMode')?'☀':'☾';return;}if(e.target.id==='closeCopilot')return $('copilot')?.remove();if(e.target.id==='publishBtn'){alert('Drive published successfully!')}});
+document.addEventListener('click',e=>{const loginBtn=e.target.closest('[data-login]');if(loginBtn)return login(loginBtn.dataset.login);if(e.target.id==='logoutBtn')return logoutFull();const menuBtn=e.target.closest('[data-menu]');if(menuBtn)return render(currentRole,menuBtn.dataset.menu);const quick=e.target.closest('[data-quick]');if(quick)return render(currentRole,quick.dataset.quick);const match=e.target.closest('[data-match]');if(match){const [n,s]=match.dataset.match.split('|');return showMatch(n,s)}if(e.target.id==='roadmapBtn')return roadmap();if(e.target.id==='closeAi')return $('aiModal')?.remove();if(e.target.id==='closeRoadmap')return $('roadmap')?.remove();if(e.target.id==='demoBtn')return openDemo();if(e.target.id==='closeDemo')return $('demoOverlay')?.remove();if(e.target.id==='copilotBtn'||e.target.id==='copilotBtn2')return openCopilot();if(e.target.id==='themeBtn'){document.getElementById('app').classList.toggle('darkMode');e.target.textContent=document.getElementById('app').classList.contains('darkMode')?'☀':'☾';return;}if(e.target.id==='closeCopilot')return $('copilot')?.remove();if(e.target.id==='publishBtn'){alert('Drive published successfully!')}});
 
 
 
@@ -175,5 +175,73 @@ function v7BestJob(){v7Modal('Best Job Match','<div class="v7Insight"><b>TCS Sof
 function v7SkillImprove(){v7Modal('Skill Improvement','<div class="v7Insight"><b>Priority: DSA</b>Practice arrays, strings, hashing and problem-solving patterns.</div>')}
 function v7InterviewPrep(){v7Modal('Interview Prep','<div class="v7Insight"><b>Focus areas</b>DSA, SQL, OOP and project explanation.</div>')}
 </script>
+
+<div id="loginModal" class="modalOverlay hidden">
+  <div class="loginCard">
+    <button class="modalClose" id="closeLogin">×</button>
+    <div class="loginLogo">CL</div>
+    <h2 id="loginHeading">CAMPUSLINK Login</h2>
+    <p id="loginSub">Secure role-based access</p>
+    <form id="loginForm">
+      <label>Email</label><input id="loginEmail" type="email" required placeholder="you@example.com">
+      <label>Password</label><input id="loginPassword" type="password" required placeholder="••••••••">
+      <button class="primaryBtn" type="submit">Sign in securely →</button>
+      <div id="loginError" class="loginError"></div>
+    </form>
+    <div class="demoCreds" id="demoCreds"></div>
+  </div>
+</div>
+<script>
+const CL_API=localStorage.getItem('CAMPUSLINK_API_URL')||'https://campuslink-backend-ejtd.onrender.com';
+let CL_TOKEN=localStorage.getItem('CAMPUSLINK_TOKEN')||'';
+let CL_LOGIN_ROLE='student';
+async function api(path,opts={}){
+  const headers={'Content-Type':'application/json',...(opts.headers||{})};
+  if(CL_TOKEN) headers.Authorization='Bearer '+CL_TOKEN;
+  const r=await fetch(CL_API+path,{...opts,headers});
+  let data={}; try{data=await r.json()}catch(e){}
+  if(!r.ok) throw new Error(data.error||('Request failed: '+r.status));
+  return data;
+}
+function openLogin(role){
+  CL_LOGIN_ROLE=role;
+  const names={student:'Student',recruiter:'Recruiter',admin:'Placement Admin'};
+  const creds={student:['student@campuslink.com','student123'],recruiter:['recruiter@campuslink.com','recruiter123'],admin:['admin@campuslink.com','admin123']}[role];
+  document.getElementById('loginHeading').textContent=names[role]+' Login';
+  document.getElementById('loginSub').textContent='CAMPUSLINK secure role-based access';
+  document.getElementById('loginEmail').value=creds[0]; document.getElementById('loginPassword').value=creds[1];
+  document.getElementById('demoCreds').innerHTML='Demo: <b>'+creds[0]+'</b> / <b>'+creds[1]+'</b>';
+  document.getElementById('loginError').textContent=''; document.getElementById('loginModal').classList.remove('hidden');
+}
+async function secureLogin(){
+  const email=document.getElementById('loginEmail').value.trim(), password=document.getElementById('loginPassword').value;
+  const err=document.getElementById('loginError'); err.textContent='Connecting to CAMPUSLINK backend…';
+  try{
+    const out=await api('/api/auth/login',{method:'POST',body:JSON.stringify({email,password})});
+    if(out.user.role!==CL_LOGIN_ROLE){throw new Error('This account is not a '+CL_LOGIN_ROLE+' account.');}
+    CL_TOKEN=out.token; localStorage.setItem('CAMPUSLINK_TOKEN',CL_TOKEN);
+    localStorage.setItem('CAMPUSLINK_ROLE',out.user.role);
+    document.getElementById('loginModal').classList.add('hidden');
+    login(out.user.role,true);
+    setTimeout(()=>syncBackend(out.user.role),50);
+  }catch(e){err.textContent=e.message+'  (Check backend URL and make sure server is running.)';}
+}
+async function syncBackend(role){
+  try{
+    if(role==='student'){
+      const [profile,apps,offers,jobs]=await Promise.all([api('/api/student/profile'),api('/api/student/applications'),api('/api/student/offers'),api('/api/student/jobs')]);
+      window.CL_DATA={profile,apps,offers,jobs};
+      const badge=document.getElementById('backendStatus'); if(badge) badge.textContent='● Backend connected';
+    } else if(role==='admin'){window.CL_DATA={analytics:await api('/api/admin/analytics')};}
+    else {window.CL_DATA={candidates:await api('/api/recruiter/candidates')};}
+  }catch(e){console.warn('Backend sync:',e.message)}
+}
+function logoutFull(){try{api('/api/auth/logout',{method:'POST'})}catch(e){} CL_TOKEN='';localStorage.removeItem('CAMPUSLINK_TOKEN');localStorage.removeItem('CAMPUSLINK_ROLE');logout();}
+document.addEventListener('submit',e=>{if(e.target.id==='loginForm'){e.preventDefault();secureLogin()}});
+document.addEventListener('click',e=>{if(e.target.closest('[data-login]')){e.preventDefault();openLogin(e.target.closest('[data-login]').dataset.login)} if(e.target.id==='closeLogin')document.getElementById('loginModal').classList.add('hidden'); if(e.target.id==='logoutBtn'){e.stopImmediatePropagation();logoutFull();}});
+</script>
+<style>
+.modalOverlay{position:fixed;inset:0;background:rgba(4,10,24,.72);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;z-index:9999}.modalOverlay.hidden{display:none}.loginCard{width:min(430px,92vw);padding:30px;border:1px solid rgba(120,160,255,.25);border-radius:24px;background:linear-gradient(145deg,#101a33,#0a1124);box-shadow:0 30px 100px rgba(0,0,0,.5);color:#fff;position:relative}.loginLogo{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#6d5dfc,#18c8ff);font-weight:900;font-size:20px;margin-bottom:16px}.loginCard h2{margin:0 0 6px;font-size:25px}.loginCard p{margin:0 0 22px;color:#9fb0cc}.loginCard label{display:block;font-size:13px;margin:13px 0 7px;color:#cbd7ef}.loginCard input{width:100%;box-sizing:border-box;padding:13px 14px;border-radius:12px;border:1px solid #2b3a5c;background:#0a1328;color:#fff;outline:none}.loginCard input:focus{border-color:#6d8cff}.primaryBtn{width:100%;margin-top:18px;padding:13px;border:0;border-radius:12px;background:linear-gradient(90deg,#6d5dfc,#18bfff);color:#fff;font-weight:800;cursor:pointer}.modalClose{position:absolute;right:16px;top:13px;border:0;background:transparent;color:#9fb0cc;font-size:27px;cursor:pointer}.loginError{min-height:20px;margin-top:12px;color:#ff9b9b;font-size:13px}.demoCreds{margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);font-size:11px;color:#aebbd3}
+</style>
 </body>
 </html>
